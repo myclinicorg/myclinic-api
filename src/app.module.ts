@@ -8,9 +8,10 @@ import { TransactionsModule } from './transactions/transactions.module.js';
 import { SuppliesModule } from './supplies/supplies.module.js';
 import { ClinicsModule } from './clinics/clinics.module.js';
 import { ServicesModule } from './services/services.module.js';
+import { AppointmentsModule } from './appointments/appointments.module.js';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PatientsModule, TransactionsModule, SuppliesModule, ClinicsModule, ServicesModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PatientsModule, TransactionsModule, SuppliesModule, ClinicsModule, ServicesModule, AppointmentsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
