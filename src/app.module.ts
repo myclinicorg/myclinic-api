@@ -6,9 +6,10 @@ import { PrismaService } from './prisma/prisma.service.js';
 import { PatientsModule } from './patients/patients.module.js';
 import { TransactionsModule } from './transactions/transactions.module.js';
 import { SuppliesModule } from './supplies/supplies.module.js';
+import { ClinicsModule } from './clinics/clinics.module.js';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PatientsModule, TransactionsModule, SuppliesModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PatientsModule, TransactionsModule, SuppliesModule, ClinicsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
