@@ -48,6 +48,7 @@ describe('Authentication (e2e)', () => {
         name: ana.name,
         email: ana.email,
         emailVerified: false,
+        clinicId: null,
       });
   });
 

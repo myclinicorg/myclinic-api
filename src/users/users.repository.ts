@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { User as UserRow } from '../generated/prisma/client.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { User } from './user.js';
 
@@ -16,12 +16,16 @@ export class UsersRepository {
   ): Promise<User> {
     const row = await this.prisma.user.create({
       data: { name, email: normalize(email), emailVerified, passwordHash },
+      include: withClinic,
     });
     return toUser(row);
   }
 
   async findById(id: string): Promise<User | null> {
-    const row = await this.prisma.user.findUnique({ where: { id } });
+    const row = await this.prisma.user.findUnique({
+      where: { id },
+      include: withClinic,
+    });
     return row ? toUser(row) : null;
   }
 
@@ -45,15 +49,25 @@ export class UsersRepository {
   }
 
   private findRow(email: string) {
-    return this.prisma.user.findUnique({ where: { email: normalize(email) } });
+    return this.prisma.user.findUnique({
+      where: { email: normalize(email) },
+      include: withClinic,
+    });
   }
 }
 
 const normalize = (email: string) =>
   email.trim().normalize('NFC').toLowerCase();
-const toUser = ({ id, name, email, emailVerified }: UserRow): User => ({
+const withClinic = {
+  clinic: { select: { id: true } },
+} satisfies Prisma.UserInclude;
+
+type UserRow = Prisma.UserGetPayload<{ include: typeof withClinic }>;
+
+const toUser = ({ id, name, email, emailVerified, clinic }: UserRow): User => ({
   id,
   name,
   email,
   emailVerified,
+  clinicId: clinic?.id ?? null,
 });
