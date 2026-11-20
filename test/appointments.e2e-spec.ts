@@ -88,7 +88,7 @@ describe('Appointments (e2e)', () => {
     const responses = await Promise.all(
       Array.from({ length: 5 }, () => schedule('2026-12-02T09:00:00-03:00')),
     );
-    expect(responses.map((r) => r.status).sort()).toEqual([
+    expect(responses.map((r) => r.status).sort((a, b) => a - b)).toEqual([
       201, 409, 409, 409, 409,
     ]);
   });
