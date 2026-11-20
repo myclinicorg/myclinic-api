@@ -10,12 +10,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto.js';
 import { CreateSupplyDto } from './dto/create-supply.dto.js';
 import { FindSuppliesDto } from './dto/find-supplies.dto.js';
 import { UpdateSupplyDto } from './dto/update-supply.dto.js';
 import { SuppliesService } from './supplies.service.js';
 
+@ApiTags('supplies')
+@ApiCookieAuth()
 @Controller('supplies')
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}

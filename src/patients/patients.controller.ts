@@ -10,11 +10,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePatientDto } from './dto/create-patient.dto.js';
 import { FindPatientsDto } from './dto/find-patients.dto.js';
 import { UpdatePatientDto } from './dto/update-patient.dto.js';
 import { PatientsService } from './patients.service.js';
 
+@ApiTags('patients')
+@ApiCookieAuth()
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}

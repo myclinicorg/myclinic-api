@@ -9,12 +9,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { FindTransactionsDto, PeriodDto } from './dto/find-transactions.dto.js';
 import { PayTransactionDto } from './dto/pay-transaction.dto.js';
 import { UpdateTransactionDto } from './dto/update-transaction.dto.js';
 import { TransactionsService } from './transactions.service.js';
 
+@ApiTags('transactions')
+@ApiCookieAuth()
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { PasswordResetService, Public } from '@nestjs/authentication';
 import { Throttle, minutes } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
 import { accountEmail } from './account-email.js';
 import { EmailDto, ResetPasswordDto } from './auth.dto.js';
 
 @Public()
+@ApiTags('auth')
 @Controller('auth/password')
 export class PasswordResetController {
   constructor(private readonly passwordResetService: PasswordResetService) {}

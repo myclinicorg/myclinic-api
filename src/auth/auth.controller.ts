@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { Public, SignInService } from '@nestjs/authentication';
 import { SkipThrottle, Throttle, hours, minutes } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
 import { SignInDto, SignUpDto } from './auth.dto.js';
 import { CredentialsService } from './credentials.service.js';
 
 @Public()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

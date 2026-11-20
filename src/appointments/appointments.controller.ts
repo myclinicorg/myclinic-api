@@ -9,6 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service.js';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto.js';
 import { CompleteAppointmentDto } from './dto/complete-appointment.dto.js';
@@ -16,6 +17,8 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto.js';
 import { FindAppointmentsDto } from './dto/find-appointments.dto.js';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto.js';
 
+@ApiTags('appointments')
+@ApiCookieAuth()
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}

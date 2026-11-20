@@ -10,11 +10,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { CreateServiceDto } from './dto/create-service.dto.js';
 import { FindServicesDto } from './dto/find-services.dto.js';
 import { UpdateServiceDto } from './dto/update-service.dto.js';
 import { ServicesService } from './services.service.js';
 
+@ApiTags('services')
+@ApiCookieAuth()
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
