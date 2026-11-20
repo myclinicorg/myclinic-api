@@ -28,3 +28,27 @@ export function startOfNextLocalDay(day: string): Date {
   next.setUTCDate(next.getUTCDate() + 1);
   return startOfLocalDay(next.toISOString().slice(0, 10));
 }
+
+export const TIME_OF_DAY = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export function toLocalTime(date: Date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: APP_TIME_ZONE,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? '';
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return {
+    weekday: weekdays.indexOf(part('weekday')),
+    minutes: Number(part('hour')) * 60 + Number(part('minute')),
+  };
+}
+
+export function minutesOfDay(time: string) {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}

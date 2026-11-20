@@ -110,6 +110,9 @@ model Clinic {
   addressComplement String?  @map("address_complement")
   city              String?
   state             String?
+  openingTime       String?  @map("opening_time")
+  closingTime       String?  @map("closing_time")
+  workingDays       Int[]    @default([]) @map("working_days")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
   owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)

@@ -1,12 +1,19 @@
 import {
+  ArrayMaxSize,
+  ArrayUnique,
+  IsArray,
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Length,
   Matches,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
+import { TIME_OF_DAY } from '../../common/date-time.js';
 import { IsCnpj } from '../../common/validators/brazilian-documents.js';
 
 export class CreateClinicDto {
@@ -64,4 +71,21 @@ export class CreateClinicDto {
   @Length(2, 2)
   @Matches(/^[A-Z]{2}$/, { message: 'state deve ser a sigla da UF' })
   state?: string | null;
+
+  @IsOptional()
+  @Matches(TIME_OF_DAY, { message: 'openingTime deve estar no formato HH:MM' })
+  openingTime?: string | null;
+
+  @IsOptional()
+  @Matches(TIME_OF_DAY, { message: 'closingTime deve estar no formato HH:MM' })
+  closingTime?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(7)
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(0, { each: true })
+  @Max(6, { each: true })
+  workingDays?: number[];
 }

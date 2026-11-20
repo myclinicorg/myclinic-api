@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { AuthenticationContext } from '@nestjs/authentication';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -19,6 +23,10 @@ export class ClinicsService {
     if (user.clinicId) {
       throw new ConflictException('Você já possui uma clínica cadastrada');
     }
+    assertBusinessHours(
+      createClinicDto.openingTime,
+      createClinicDto.closingTime,
+    );
     try {
       return await this.prisma.clinic.create({
         data: Object.assign({ ownerId: user.id }, createClinicDto),
@@ -35,6 +43,15 @@ export class ClinicsService {
   }
 
   async update(updateClinicDto: UpdateClinicDto) {
+    const current = await this.findMine();
+    assertBusinessHours(
+      updateClinicDto.openingTime === undefined
+        ? current.openingTime
+        : updateClinicDto.openingTime,
+      updateClinicDto.closingTime === undefined
+        ? current.closingTime
+        : updateClinicDto.closingTime,
+    );
     try {
       return await this.prisma.clinic.update({
         where: { id: this.clinicContext.requireClinicId() },
@@ -43,6 +60,20 @@ export class ClinicsService {
     } catch (error) {
       throw toConflict(error);
     }
+  }
+}
+
+function assertBusinessHours(
+  openingTime?: string | null,
+  closingTime?: string | null,
+) {
+  if (!openingTime !== !closingTime) {
+    throw new BadRequestException('Informe openingTime e closingTime juntos');
+  }
+  if (openingTime && closingTime && openingTime >= closingTime) {
+    throw new BadRequestException(
+      'openingTime deve ser anterior a closingTime',
+    );
   }
 }
 

@@ -149,8 +149,8 @@ describe('Services (e2e)', () => {
         clinicId,
         patientId: patient.id,
         serviceId,
-        startsAt: new Date('2026-12-01T13:00:00Z'),
-        endsAt: new Date('2026-12-01T13:50:00Z'),
+        startsAt: new Date('2030-12-01T13:00:00Z'),
+        endsAt: new Date('2030-12-01T13:50:00Z'),
         priceCents: 18000,
       },
     });

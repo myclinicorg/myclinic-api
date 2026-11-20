@@ -114,6 +114,43 @@ describe('Clinics (e2e)', () => {
       .expect(400);
   });
 
+  it('validates the business hours', async () => {
+    for (const body of [
+      { openingTime: '08:00' },
+      { openingTime: '18:00', closingTime: '08:00' },
+      { openingTime: '8h', closingTime: '18:00' },
+      { workingDays: [7] },
+      { workingDays: [1, 1] },
+    ]) {
+      await request(app.getHttpServer())
+        .patch('/clinic')
+        .set('Cookie', cookie)
+        .send(body)
+        .expect(400);
+    }
+
+    const res = await request(app.getHttpServer())
+      .patch('/clinic')
+      .set('Cookie', cookie)
+      .send({ openingTime: '08:00', closingTime: '18:00', workingDays: [1, 2] })
+      .expect(200);
+    expect(res.body).toMatchObject({
+      openingTime: '08:00',
+      closingTime: '18:00',
+      workingDays: [1, 2],
+    });
+    await request(app.getHttpServer())
+      .patch('/clinic')
+      .set('Cookie', cookie)
+      .send({ openingTime: null })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch('/clinic')
+      .set('Cookie', cookie)
+      .send({ openingTime: null, closingTime: null, workingDays: [] })
+      .expect(200);
+  });
+
   it('rejects anonymous requests', async () => {
     await request(app.getHttpServer()).get('/clinic').expect(401);
   });

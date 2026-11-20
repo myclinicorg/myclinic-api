@@ -67,10 +67,10 @@ describe('Appointments (e2e)', () => {
   });
 
   it('schedules with the service duration and price', async () => {
-    const res = await schedule('2026-12-01T10:00:00-03:00').expect(201);
+    const res = await schedule('2030-12-01T10:00:00-03:00').expect(201);
     expect(res.body).toMatchObject({
-      startsAt: '2026-12-01T13:00:00.000Z',
-      endsAt: '2026-12-01T13:50:00.000Z',
+      startsAt: '2030-12-01T13:00:00.000Z',
+      endsAt: '2030-12-01T13:50:00.000Z',
       priceCents: 15000,
       status: 'SCHEDULED',
       patient: { id: patientId, fullName: 'Maria Souza' },
@@ -79,14 +79,14 @@ describe('Appointments (e2e)', () => {
   });
 
   it('rejects overlapping times and accepts adjacent ones', async () => {
-    const res = await schedule('2026-12-01T10:30:00-03:00').expect(409);
+    const res = await schedule('2030-12-01T10:30:00-03:00').expect(409);
     expect(res.body.errorCode).toBe('SCHEDULE_CONFLICT');
-    await schedule('2026-12-01T10:50:00-03:00').expect(201);
+    await schedule('2030-12-01T10:50:00-03:00').expect(201);
   });
 
   it('accepts only one of concurrent requests for the same time', async () => {
     const responses = await Promise.all(
-      Array.from({ length: 5 }, () => schedule('2026-12-02T09:00:00-03:00')),
+      Array.from({ length: 5 }, () => schedule('2030-12-02T09:00:00-03:00')),
     );
     expect(responses.map((r) => r.status).sort((a, b) => a - b)).toEqual([
       201, 409, 409, 409, 409,
@@ -94,11 +94,11 @@ describe('Appointments (e2e)', () => {
   });
 
   it('validates the request', async () => {
-    await schedule('2026-12-03T09:00:00').expect(400);
+    await schedule('2030-12-03T09:00:00').expect(400);
     await http()
       .post('/appointments')
       .set('Cookie', otherCookie)
-      .send({ patientId, serviceId, startsAt: '2026-12-03T09:00:00-03:00' })
+      .send({ patientId, serviceId, startsAt: '2030-12-03T09:00:00-03:00' })
       .expect(400);
 
     await http()
@@ -106,7 +106,7 @@ describe('Appointments (e2e)', () => {
       .set('Cookie', cookie)
       .send({ active: false })
       .expect(200);
-    await schedule('2026-12-03T09:00:00-03:00').expect(400);
+    await schedule('2030-12-03T09:00:00-03:00').expect(400);
     await http()
       .patch(`/services/${serviceId}`)
       .set('Cookie', cookie)
@@ -118,14 +118,14 @@ describe('Appointments (e2e)', () => {
     const res = await http()
       .get('/appointments')
       .query({
-        from: '2026-12-01T00:00:00-03:00',
-        to: '2026-12-02T00:00:00-03:00',
+        from: '2030-12-01T00:00:00-03:00',
+        to: '2030-12-02T00:00:00-03:00',
       })
       .set('Cookie', cookie)
       .expect(200);
     expect(res.body.data.map((a: { startsAt: string }) => a.startsAt)).toEqual([
-      '2026-12-01T13:00:00.000Z',
-      '2026-12-01T13:50:00.000Z',
+      '2030-12-01T13:00:00.000Z',
+      '2030-12-01T13:50:00.000Z',
     ]);
 
     const other = await http()
@@ -136,7 +136,7 @@ describe('Appointments (e2e)', () => {
   });
 
   it('reschedules, confirms and cancels', async () => {
-    const { body } = await schedule('2026-12-04T14:00:00-03:00').expect(201);
+    const { body } = await schedule('2030-12-04T14:00:00-03:00').expect(201);
 
     await http()
       .post(`/appointments/${body.id}/confirm`)
@@ -151,16 +151,16 @@ describe('Appointments (e2e)', () => {
     await http()
       .patch(`/appointments/${body.id}`)
       .set('Cookie', cookie)
-      .send({ startsAt: '2026-12-01T10:20:00-03:00' })
+      .send({ startsAt: '2030-12-01T10:20:00-03:00' })
       .expect(409);
     const moved = await http()
       .patch(`/appointments/${body.id}`)
       .set('Cookie', cookie)
-      .send({ startsAt: '2026-12-04T16:00:00-03:00' })
+      .send({ startsAt: '2030-12-04T16:00:00-03:00' })
       .expect(200);
     expect(moved.body).toMatchObject({
-      startsAt: '2026-12-04T19:00:00.000Z',
-      endsAt: '2026-12-04T19:50:00.000Z',
+      startsAt: '2030-12-04T19:00:00.000Z',
+      endsAt: '2030-12-04T19:50:00.000Z',
       status: 'SCHEDULED',
     });
 
@@ -178,13 +178,13 @@ describe('Appointments (e2e)', () => {
     await http()
       .patch(`/appointments/${body.id}`)
       .set('Cookie', cookie)
-      .send({ startsAt: '2026-12-05T16:00:00-03:00' })
+      .send({ startsAt: '2030-12-05T16:00:00-03:00' })
       .expect(409);
-    await schedule('2026-12-04T16:00:00-03:00').expect(201);
+    await schedule('2030-12-04T16:00:00-03:00').expect(201);
   });
 
   it('completes and records the income', async () => {
-    const { body } = await schedule('2026-12-07T09:00:00-03:00').expect(201);
+    const { body } = await schedule('2030-12-07T09:00:00-03:00').expect(201);
     await http()
       .patch(`/services/${serviceId}`)
       .set('Cookie', cookie)
@@ -219,7 +219,7 @@ describe('Appointments (e2e)', () => {
   });
 
   it('completes without payment as a pending income', async () => {
-    const { body } = await schedule('2026-12-08T09:00:00-03:00').expect(201);
+    const { body } = await schedule('2030-12-08T09:00:00-03:00').expect(201);
     const res = await http()
       .post(`/appointments/${body.id}/complete`)
       .set('Cookie', cookie)
@@ -240,17 +240,65 @@ describe('Appointments (e2e)', () => {
   });
 
   it('marks a no-show and frees the time', async () => {
-    const { body } = await schedule('2026-12-09T09:00:00-03:00').expect(201);
+    const { body } = await schedule('2030-12-09T09:00:00-03:00').expect(201);
     await http()
       .post(`/appointments/${body.id}/no-show`)
       .set('Cookie', cookie)
       .expect(200)
       .expect((res) => expect(res.body.status).toBe('NO_SHOW'));
-    await schedule('2026-12-09T09:00:00-03:00').expect(201);
+    await schedule('2030-12-09T09:00:00-03:00').expect(201);
+  });
+
+  it('refuses times in the past', async () => {
+    const res = await schedule('2020-01-06T10:00:00-03:00').expect(400);
+    expect(res.body.errorCode).toBe('PAST_DATE');
+
+    const { body } = await schedule('2030-12-11T09:00:00-03:00').expect(201);
+    await http()
+      .patch(`/appointments/${body.id}`)
+      .set('Cookie', cookie)
+      .send({ startsAt: '2020-01-06T10:00:00-03:00' })
+      .expect(400);
+  });
+
+  it('respects the business hours of the clinic', async () => {
+    const hoursCookie = await signUp('caio@example.com', '11222333000181');
+    await http()
+      .patch('/clinic')
+      .set('Cookie', hoursCookie)
+      .send({
+        openingTime: '08:00',
+        closingTime: '18:00',
+        workingDays: [1, 2, 3, 4, 5],
+      })
+      .expect(200);
+    const patient = await http()
+      .post('/patients')
+      .set('Cookie', hoursCookie)
+      .send({ fullName: 'Pedro', cpf: '52998224725' })
+      .expect(201);
+    const service = await http()
+      .post('/services')
+      .set('Cookie', hoursCookie)
+      .send({ name: 'Consulta', priceCents: 10000, durationMinutes: 50 })
+      .expect(201);
+    const at = (startsAt: string) =>
+      http().post('/appointments').set('Cookie', hoursCookie).send({
+        patientId: patient.body.id,
+        serviceId: service.body.id,
+        startsAt,
+      });
+
+    await at('2030-12-02T08:00:00-03:00').expect(201);
+    await at('2030-12-02T17:10:00-03:00').expect(201);
+    const late = await at('2030-12-02T17:30:00-03:00').expect(400);
+    expect(late.body.errorCode).toBe('OUTSIDE_BUSINESS_HOURS');
+    await at('2030-12-02T07:30:00-03:00').expect(400);
+    await at('2030-12-07T10:00:00-03:00').expect(400);
   });
 
   it('hides appointments of other clinics', async () => {
-    const { body } = await schedule('2026-12-10T09:00:00-03:00').expect(201);
+    const { body } = await schedule('2030-12-10T09:00:00-03:00').expect(201);
     await http()
       .get(`/appointments/${body.id}`)
       .set('Cookie', otherCookie)

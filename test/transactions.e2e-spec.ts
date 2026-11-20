@@ -79,7 +79,7 @@ describe('Transactions (e2e)', () => {
       type: 'INCOME',
       category: 'RENT',
       amountCents: 100,
-      dueDate: '2026-12-01',
+      dueDate: '2030-12-01',
     }).expect(400);
     await create({
       type: 'EXPENSE',
@@ -165,7 +165,7 @@ describe('Transactions (e2e)', () => {
       .send({
         patientId: patient.body.id,
         serviceId: service.body.id,
-        startsAt: '2026-12-01T10:00:00-03:00',
+        startsAt: '2030-12-01T10:00:00-03:00',
       })
       .expect(201);
     const done = await http()

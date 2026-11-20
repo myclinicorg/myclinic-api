@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
-import { toLocalDate } from '../common/date-time.js';
+import { minutesOfDay, toLocalDate, toLocalTime } from '../common/date-time.js';
 import { pageArgs, toPage } from '../common/pagination.dto.js';
 import { AppointmentStatus, Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -34,6 +34,7 @@ export class AppointmentsService {
     const clinicId = this.clinicContext.requireClinicId();
     const { patientId, serviceId, notes } = createAppointmentDto;
     const startsAt = new Date(createAppointmentDto.startsAt);
+    assertFuture(startsAt);
 
     return this.prisma.$transaction(async (tx) => {
       const patient = await tx.patient.findFirst({
@@ -49,6 +50,7 @@ export class AppointmentsService {
         throw new BadRequestException('Serviço não encontrado ou inativo');
       }
       const endsAt = addMinutes(startsAt, service.durationMinutes);
+      await assertBusinessHours(tx, clinicId, startsAt, endsAt);
       await assertAvailable(tx, clinicId, startsAt, endsAt);
       return tx.appointment.create({
         data: {
@@ -115,6 +117,9 @@ export class AppointmentsService {
       });
     }
 
+    const newStartsAt = new Date(startsAt);
+    assertFuture(newStartsAt);
+
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.appointment.findFirst({
         where: { id, clinicId },
@@ -122,11 +127,11 @@ export class AppointmentsService {
       if (!current) {
         throw new NotFoundException('Agendamento não encontrado');
       }
-      const newStartsAt = new Date(startsAt);
       const newEndsAt = new Date(
         newStartsAt.getTime() +
           (current.endsAt.getTime() - current.startsAt.getTime()),
       );
+      await assertBusinessHours(tx, clinicId, newStartsAt, newEndsAt);
       await assertAvailable(tx, clinicId, newStartsAt, newEndsAt, id);
       const { count } = await tx.appointment.updateMany({
         where: { id, status: { in: OPEN } },
@@ -239,6 +244,39 @@ async function assertAvailable(
   if (conflict) {
     throw new ConflictException('Horário indisponível', {
       errorCode: 'SCHEDULE_CONFLICT',
+    });
+  }
+}
+
+function assertFuture(startsAt: Date) {
+  if (startsAt.getTime() <= Date.now()) {
+    throw new BadRequestException('Não é possível agendar no passado', {
+      errorCode: 'PAST_DATE',
+    });
+  }
+}
+
+async function assertBusinessHours(
+  tx: Prisma.TransactionClient,
+  clinicId: string,
+  startsAt: Date,
+  endsAt: Date,
+) {
+  const { openingTime, closingTime, workingDays } =
+    await tx.clinic.findUniqueOrThrow({ where: { id: clinicId } });
+  const start = toLocalTime(startsAt);
+  const end = toLocalTime(endsAt);
+  const outsideDays =
+    workingDays.length > 0 && !workingDays.includes(start.weekday);
+  const outsideHours =
+    openingTime &&
+    closingTime &&
+    (start.weekday !== end.weekday ||
+      start.minutes < minutesOfDay(openingTime) ||
+      end.minutes > minutesOfDay(closingTime));
+  if (outsideDays || outsideHours) {
+    throw new BadRequestException('Horário fora do expediente da clínica', {
+      errorCode: 'OUTSIDE_BUSINESS_HOURS',
     });
   }
 }

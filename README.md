@@ -96,6 +96,7 @@ Os detalhes de cada corpo e parâmetro estão no Swagger em `/docs`.
 - **Resumo financeiro (`/transactions/summary`):** receitas e despesas realizadas contam pela data de pagamento; valores pendentes, pela data de vencimento. Os dias são considerados no fuso `America/Sao_Paulo`.
 - **Quantidades de estoque:** decimais com até 3 casas, retornadas no JSON como texto (ex.: `"7.5"`).
 - **Documentos e contato:** CPF, CNPJ, CEP e telefone apenas com dígitos; UF com duas letras maiúsculas.
+- **Agenda:** não aceita horários no passado (`PAST_DATE`). Se a clínica definir `openingTime`, `closingTime` (`HH:MM`) e `workingDays` (0 = domingo … 6 = sábado), o atendimento precisa caber no expediente (`OUTSIDE_BUSINESS_HOURS`).
 - **Erros de regra de negócio:** `409` com `errorCode`, como `SCHEDULE_CONFLICT`, `INVALID_STATUS` e `INSUFFICIENT_STOCK`.
 - **Rate limiting:** login limitado a 5 tentativas por conta a cada 15 minutos.
 
