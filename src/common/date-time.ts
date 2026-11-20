@@ -9,3 +9,5 @@ export function toLocalDate(date: Date): Date {
   }).format(date);
   return new Date(day);
 }
+
+export const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
