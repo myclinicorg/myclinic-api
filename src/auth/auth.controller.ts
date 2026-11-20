@@ -7,7 +7,14 @@ import {
 } from '@nestjs/common';
 import { Public, SignInService } from '@nestjs/authentication';
 import { SkipThrottle, Throttle, hours, minutes } from '@nestjs/throttler';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { UserEntity } from '../users/entities/user.entity.js';
+import { SignInResultEntity } from './entities/sign-in-result.entity.js';
 import { SignInDto, SignUpDto } from './auth.dto.js';
 import { CredentialsService } from './credentials.service.js';
 
@@ -20,6 +27,7 @@ export class AuthController {
     private readonly signInService: SignInService,
   ) {}
 
+  @ApiCreatedResponse({ type: UserEntity })
   @SkipThrottle({ account: true })
   @Throttle({ default: { limit: 10, ttl: hours(1) } })
   @Post('sign-up')
@@ -33,6 +41,7 @@ export class AuthController {
     return user;
   }
 
+  @ApiOkResponse({ type: SignInResultEntity })
   @Throttle({
     default: { limit: 30, ttl: minutes(15) },
     account: { limit: 5, ttl: minutes(15) },
@@ -53,6 +62,7 @@ export class AuthController {
     return { mfaRequired: session.mfa === 'pending' };
   }
 
+  @ApiNoContentResponse()
   @Post('sign-out')
   @HttpCode(204)
   async signOut() {

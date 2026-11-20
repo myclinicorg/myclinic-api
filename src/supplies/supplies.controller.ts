@@ -10,7 +10,19 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  CreatedStockMovementEntity,
+  StockMovementPageEntity,
+  SupplyEntity,
+  SupplyPageEntity,
+} from './entities/supply.entity.js';
 import { PaginationDto } from '../common/pagination.dto.js';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto.js';
 import { CreateSupplyDto } from './dto/create-supply.dto.js';
@@ -24,21 +36,25 @@ import { SuppliesService } from './supplies.service.js';
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}
 
+  @ApiCreatedResponse({ type: SupplyEntity })
   @Post()
   create(@Body() createSupplyDto: CreateSupplyDto) {
     return this.suppliesService.create(createSupplyDto);
   }
 
+  @ApiOkResponse({ type: SupplyPageEntity })
   @Get()
   findAll(@Query() query: FindSuppliesDto) {
     return this.suppliesService.findAll(query);
   }
 
+  @ApiOkResponse({ type: SupplyEntity })
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.suppliesService.findOne(id);
   }
 
+  @ApiOkResponse({ type: SupplyEntity })
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -47,12 +63,14 @@ export class SuppliesController {
     return this.suppliesService.update(id, updateSupplyDto);
   }
 
+  @ApiNoContentResponse()
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.suppliesService.remove(id);
   }
 
+  @ApiOkResponse({ type: StockMovementPageEntity })
   @Get(':id/movements')
   findMovements(
     @Param('id', ParseUUIDPipe) id: string,
@@ -61,6 +79,7 @@ export class SuppliesController {
     return this.suppliesService.findMovements(id, pagination);
   }
 
+  @ApiCreatedResponse({ type: CreatedStockMovementEntity })
   @Post(':id/movements')
   addMovement(
     @Param('id', ParseUUIDPipe) id: string,

@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { PasswordResetService, Public } from '@nestjs/authentication';
 import { Throttle, minutes } from '@nestjs/throttler';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { SignInResultEntity } from './entities/sign-in-result.entity.js';
 import { accountEmail } from './account-email.js';
 import { EmailDto, ResetPasswordDto } from './auth.dto.js';
 
@@ -17,6 +18,7 @@ import { EmailDto, ResetPasswordDto } from './auth.dto.js';
 export class PasswordResetController {
   constructor(private readonly passwordResetService: PasswordResetService) {}
 
+  @ApiAcceptedResponse()
   @Throttle({
     default: { limit: 10, ttl: minutes(15) },
     account: { limit: 3, ttl: minutes(15), getTracker: accountEmail },
@@ -27,6 +29,7 @@ export class PasswordResetController {
     this.passwordResetService.request(body.email);
   }
 
+  @ApiOkResponse({ type: SignInResultEntity })
   @Post('reset')
   @HttpCode(200)
   async reset(@Body() body: ResetPasswordDto) {
