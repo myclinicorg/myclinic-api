@@ -6,6 +6,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { PasswordResetService, Public } from '@nestjs/authentication';
+import { Throttle, minutes } from '@nestjs/throttler';
+import { accountEmail } from './account-email.js';
 import { EmailDto, ResetPasswordDto } from './auth.dto.js';
 
 @Public()
@@ -13,6 +15,10 @@ import { EmailDto, ResetPasswordDto } from './auth.dto.js';
 export class PasswordResetController {
   constructor(private readonly passwordResetService: PasswordResetService) {}
 
+  @Throttle({
+    default: { limit: 10, ttl: minutes(15) },
+    account: { limit: 3, ttl: minutes(15), getTracker: accountEmail },
+  })
   @Post('forgot')
   @HttpCode(202)
   forgot(@Body() body: EmailDto) {

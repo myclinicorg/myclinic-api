@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Public, SignInService } from '@nestjs/authentication';
+import { SkipThrottle, Throttle, hours, minutes } from '@nestjs/throttler';
 import { SignInDto, SignUpDto } from './auth.dto.js';
 import { CredentialsService } from './credentials.service.js';
 
@@ -17,6 +18,8 @@ export class AuthController {
     private readonly signInService: SignInService,
   ) {}
 
+  @SkipThrottle({ account: true })
+  @Throttle({ default: { limit: 10, ttl: hours(1) } })
   @Post('sign-up')
   async signUp(@Body() body: SignUpDto) {
     const user = await this.credentialsService.register(
@@ -28,6 +31,10 @@ export class AuthController {
     return user;
   }
 
+  @Throttle({
+    default: { limit: 30, ttl: minutes(15) },
+    account: { limit: 5, ttl: minutes(15) },
+  })
   @Post('sign-in')
   @HttpCode(200)
   async signIn(@Body() body: SignInDto) {

@@ -1,6 +1,6 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { AuthenticationModule } from '@nestjs/authentication';
 import {
   FileTemplateEngine,
@@ -8,15 +8,32 @@ import {
   MailModule,
   SmtpTransport,
 } from '@nestjs/mail';
+import {
+  ThrottlerGuard,
+  ThrottlerModule,
+  minutes,
+  normalizeIp,
+} from '@nestjs/throttler';
 import { join } from 'node:path';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { accountEmail } from './auth/account-email.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      { name: 'default', ttl: minutes(1), limit: 100 },
+      {
+        name: 'account',
+        ttl: minutes(15),
+        limit: 5,
+        skipIf: (context) => !accountEmail(context.switchToHttp().getRequest()),
+        getTracker: (req) => `${accountEmail(req)}|${normalizeIp(req.ip)}`,
+      },
+    ]),
     MailModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -51,6 +68,7 @@ import { UsersModule } from './users/users.module.js';
   providers: [
     AppService,
     { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true }) },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}
