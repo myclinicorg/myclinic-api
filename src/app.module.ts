@@ -20,6 +20,7 @@ import { AppService } from './app.service.js';
 import { accountEmail } from './auth/account-email.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
+import { ClinicsModule } from './clinics/clinics.module.js';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { UsersModule } from './users/users.module.js';
     }),
     UsersModule,
     AuthModule,
+    ClinicsModule,
   ],
   controllers: [AppController],
   providers: [
