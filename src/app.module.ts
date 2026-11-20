@@ -64,7 +64,7 @@ import { TransactionsModule } from './transactions/transactions.module.js';
           idleTtl: '3d',
         },
         passwordReset: {
-          url: `${config.getOrThrow<string>('APP_URL')}/reset-password`,
+          url: `${config.getOrThrow<string>('APP_URL')}/redefinir-senha`,
         },
       }),
     }),

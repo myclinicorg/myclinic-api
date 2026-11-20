@@ -94,7 +94,7 @@ describe('Authentication (e2e)', () => {
     const mail = await vi.waitFor(() =>
       mailbox.assertSent({ to: ana.email, mail: PasswordResetMail }),
     );
-    const token = mail.link('/reset-password').searchParams.get('token');
+    const token = mail.link('/redefinir-senha').searchParams.get('token');
 
     await request(app.getHttpServer())
       .post('/auth/password/reset')

@@ -51,7 +51,7 @@ A API sobe em `http://localhost:3000` e a documentação interativa (Swagger) em
 | --- | --- |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Credenciais do container do PostgreSQL (`compose.yaml`) |
 | `DATABASE_URL` | URL de conexão usada pelo Prisma |
-| `APP_URL` | URL pública do app web ([MyClinic Web](https://github.com/myclinicorg/myclinic-web), por padrão `http://localhost:3001`); os links de e-mail apontam para páginas dele (ex.: `/reset-password`) |
+| `APP_URL` | URL pública do app web ([MyClinic Web](https://github.com/myclinicorg/myclinic-web), por padrão `http://localhost:3001`); os links de e-mail apontam para páginas dele (ex.: `/redefinir-senha`) |
 | `MAIL_FROM` | Remetente dos e-mails |
 | `SMTP_URL` | Opcional. Sem ela, os e-mails são apenas impressos no log da aplicação |
 | `PORT` | Opcional. Porta HTTP (padrão `3000`) |
