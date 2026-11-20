@@ -22,6 +22,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { ClinicsModule } from './clinics/clinics.module.js';
 import { PatientsModule } from './patients/patients.module.js';
+import { ServicesModule } from './services/services.module.js';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { PatientsModule } from './patients/patients.module.js';
     AuthModule,
     ClinicsModule,
     PatientsModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [
