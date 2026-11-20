@@ -21,6 +21,7 @@ import { accountEmail } from './auth/account-email.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { ClinicsModule } from './clinics/clinics.module.js';
+import { PatientsModule } from './patients/patients.module.js';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ClinicsModule } from './clinics/clinics.module.js';
     UsersModule,
     AuthModule,
     ClinicsModule,
+    PatientsModule,
   ],
   controllers: [AppController],
   providers: [
