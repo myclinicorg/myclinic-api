@@ -53,11 +53,6 @@ enum PaymentMethod {
   BANK_SLIP
 }
 
-enum EmailTokenPurpose {
-  PASSWORD_RESET
-  EMAIL_VERIFICATION
-}
-
 model User {
   id            String   @id @default(uuid())
   name          String
@@ -67,9 +62,7 @@ model User {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  clinic      Clinic?
-  sessions    Session[]
-  emailTokens EmailToken[]
+  clinic Clinic?
 
   @@map("users")
 }
@@ -82,7 +75,6 @@ model Session {
   lastActiveAt DateTime @map("last_active_at") @db.Timestamptz(3)
   mfa          String?
   metadata     Json?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
@@ -90,14 +82,13 @@ model Session {
 }
 
 model EmailToken {
-  id          String            @id
-  purpose     EmailTokenPurpose
-  userId      String            @map("user_id")
+  id          String   @id
+  purpose     String
+  userId      String   @map("user_id")
   email       String
   fingerprint String?
-  createdAt   DateTime          @map("created_at") @db.Timestamptz(3)
-  expiresAt   DateTime          @map("expires_at") @db.Timestamptz(3)
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @map("created_at") @db.Timestamptz(3)
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(3)
 
   @@index([userId, purpose])
   @@index([expiresAt])
