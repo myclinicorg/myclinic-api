@@ -23,6 +23,7 @@ import { UsersModule } from './users/users.module.js';
 import { ClinicsModule } from './clinics/clinics.module.js';
 import { PatientsModule } from './patients/patients.module.js';
 import { ServicesModule } from './services/services.module.js';
+import { AppointmentsModule } from './appointments/appointments.module.js';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { ServicesModule } from './services/services.module.js';
     ClinicsModule,
     PatientsModule,
     ServicesModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [
