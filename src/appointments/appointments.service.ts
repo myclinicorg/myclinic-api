@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
 import { toLocalDate } from '../common/date-time.js';
+import { pageArgs, toPage } from '../common/pagination.dto.js';
 import { AppointmentStatus, Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto.js';
@@ -64,20 +65,32 @@ export class AppointmentsService {
     });
   }
 
-  findAll({ from, to, status, patientId }: FindAppointmentsDto) {
-    return this.prisma.appointment.findMany({
-      where: {
-        clinicId: this.clinicContext.requireClinicId(),
-        status,
-        patientId,
-        startsAt: {
-          ...(from && { gte: new Date(from) }),
-          ...(to && { lt: new Date(to) }),
-        },
+  async findAll({
+    from,
+    to,
+    status,
+    patientId,
+    ...pagination
+  }: FindAppointmentsDto) {
+    const where: Prisma.AppointmentWhereInput = {
+      clinicId: this.clinicContext.requireClinicId(),
+      status,
+      patientId,
+      startsAt: {
+        ...(from && { gte: new Date(from) }),
+        ...(to && { lt: new Date(to) }),
       },
-      include: details,
-      orderBy: { startsAt: 'asc' },
-    });
+    };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.appointment.findMany({
+        where,
+        include: details,
+        orderBy: { startsAt: 'asc' },
+        ...pageArgs(pagination),
+      }),
+      this.prisma.appointment.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async findOne(id: string) {

@@ -79,7 +79,10 @@ import { TransactionsModule } from './transactions/transactions.module.js';
   controllers: [AppController],
   providers: [
     AppService,
-    { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true }) },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({ whitelist: true, transform: true }),
+    },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

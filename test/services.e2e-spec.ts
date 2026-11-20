@@ -87,7 +87,7 @@ describe('Services (e2e)', () => {
       .get('/services')
       .set('Cookie', cookie)
       .expect(200);
-    expect(all.body.map((s: { name: string }) => s.name)).toEqual([
+    expect(all.body.data.map((s: { name: string }) => s.name)).toEqual([
       'Avaliação',
       'Consulta',
     ]);
@@ -97,7 +97,7 @@ describe('Services (e2e)', () => {
       .query({ active: 'true' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(active.body.map((s: { name: string }) => s.name)).toEqual([
+    expect(active.body.data.map((s: { name: string }) => s.name)).toEqual([
       'Consulta',
     ]);
 

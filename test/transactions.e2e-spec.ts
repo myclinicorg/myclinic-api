@@ -179,8 +179,8 @@ describe('Transactions (e2e)', () => {
       .query({ type: 'INCOME', status: 'PENDING' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(pending.body).toHaveLength(1);
-    expect(pending.body[0].appointmentId).toBe(appointment.body.id);
+    expect(pending.body.data).toHaveLength(1);
+    expect(pending.body.data[0].appointmentId).toBe(appointment.body.id);
 
     await http()
       .post(`/transactions/${done.body.transaction.id}/pay`)
@@ -226,7 +226,7 @@ describe('Transactions (e2e)', () => {
       .query({ from: '2030-01-04', to: '2030-01-31' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(res.body.map((t: { dueDate: string }) => t.dueDate)).toEqual([
+    expect(res.body.data.map((t: { dueDate: string }) => t.dueDate)).toEqual([
       '2030-01-20T00:00:00.000Z',
       '2030-01-05T00:00:00.000Z',
     ]);

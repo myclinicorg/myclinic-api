@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '../common/pagination.dto.js';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto.js';
 import { CreateSupplyDto } from './dto/create-supply.dto.js';
 import { FindSuppliesDto } from './dto/find-supplies.dto.js';
@@ -53,8 +54,11 @@ export class SuppliesController {
   }
 
   @Get(':id/movements')
-  findMovements(@Param('id', ParseUUIDPipe) id: string) {
-    return this.suppliesService.findMovements(id);
+  findMovements(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.suppliesService.findMovements(id, pagination);
   }
 
   @Post(':id/movements')

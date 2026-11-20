@@ -136,7 +136,7 @@ describe('Supplies (e2e)', () => {
       .get(`/supplies/${supplyId}/movements`)
       .set('Cookie', cookie)
       .expect(200);
-    expect(movements.body).toHaveLength(8);
+    expect(movements.body.data).toHaveLength(8);
 
     await http()
       .post('/supplies')
@@ -148,7 +148,7 @@ describe('Supplies (e2e)', () => {
       .query({ lowStock: 'true' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(low.body.map((s: { name: string }) => s.name)).toEqual([
+    expect(low.body.data.map((s: { name: string }) => s.name)).toEqual([
       'Algodão',
       'Luva descartável',
     ]);

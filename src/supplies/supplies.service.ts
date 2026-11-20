@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
 import { toLocalDate } from '../common/date-time.js';
+import { PaginationDto, pageArgs, toPage } from '../common/pagination.dto.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto.js';
@@ -29,17 +30,23 @@ export class SuppliesService {
     });
   }
 
-  findAll({ active, lowStock }: FindSuppliesDto) {
-    return this.prisma.supply.findMany({
-      where: {
-        clinicId: this.clinicContext.requireClinicId(),
-        ...(active !== undefined && { active: active === 'true' }),
-        ...(lowStock === 'true' && {
-          currentQuantity: { lte: this.prisma.supply.fields.minQuantity },
-        }),
-      },
-      orderBy: { name: 'asc' },
-    });
+  async findAll({ active, lowStock, ...pagination }: FindSuppliesDto) {
+    const where: Prisma.SupplyWhereInput = {
+      clinicId: this.clinicContext.requireClinicId(),
+      ...(active !== undefined && { active: active === 'true' }),
+      ...(lowStock === 'true' && {
+        currentQuantity: { lte: this.prisma.supply.fields.minQuantity },
+      }),
+    };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.supply.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        ...pageArgs(pagination),
+      }),
+      this.prisma.supply.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async findOne(id: string) {
@@ -77,13 +84,19 @@ export class SuppliesService {
     }
   }
 
-  async findMovements(supplyId: string) {
+  async findMovements(supplyId: string, pagination: PaginationDto) {
     await this.findOne(supplyId);
-    return this.prisma.stockMovement.findMany({
-      where: { supplyId },
-      include: { transaction: true },
-      orderBy: { occurredAt: 'desc' },
-    });
+    const where: Prisma.StockMovementWhereInput = { supplyId };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.stockMovement.findMany({
+        where,
+        include: { transaction: true },
+        orderBy: { occurredAt: 'desc' },
+        ...pageArgs(pagination),
+      }),
+      this.prisma.stockMovement.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async addMovement(supplyId: string, dto: CreateStockMovementDto) {

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
+import { pageArgs, toPage } from '../common/pagination.dto.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePatientDto } from './dto/create-patient.dto.js';
@@ -28,22 +29,28 @@ export class PatientsService {
     }
   }
 
-  findAll({ search }: FindPatientsDto) {
+  async findAll({ search, ...pagination }: FindPatientsDto) {
     const clinicId = this.clinicContext.requireClinicId();
     const term = search?.trim();
     const digits = term?.replace(/\D/g, '');
-    return this.prisma.patient.findMany({
-      where: {
-        clinicId,
-        ...(term && {
-          OR: [
-            { fullName: { contains: term, mode: 'insensitive' } },
-            ...(digits ? [{ cpf: { startsWith: digits } }] : []),
-          ],
-        }),
-      },
-      orderBy: { fullName: 'asc' },
-    });
+    const where: Prisma.PatientWhereInput = {
+      clinicId,
+      ...(term && {
+        OR: [
+          { fullName: { contains: term, mode: 'insensitive' } },
+          ...(digits ? [{ cpf: { startsWith: digits } }] : []),
+        ],
+      }),
+    };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.patient.findMany({
+        where,
+        orderBy: { fullName: 'asc' },
+        ...pageArgs(pagination),
+      }),
+      this.prisma.patient.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async findOne(id: string) {

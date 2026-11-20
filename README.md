@@ -90,6 +90,7 @@ Os detalhes de cada corpo e parâmetro estão no Swagger em `/docs`.
 ## Convenções da API
 
 - **Autenticação:** cookie de sessão `__Host-sid` (`HttpOnly`, `Secure`, `SameSite=Lax`). Navegadores aceitam cookies `Secure` em `http://localhost`.
+- **Listagens:** paginadas com `?page=` (padrão 1) e `?pageSize=` (padrão 20, máximo 100). A resposta é `{ data: [...], meta: { page, pageSize, total, totalPages } }`.
 - **Valores monetários:** inteiros em centavos (`priceCents`, `amountCents`, `unitCostCents`). R$ 150,00 = `15000`.
 - **Data e hora:** ISO 8601 com fuso horário (`2026-12-01T10:00:00-03:00`). **Datas sem hora:** `AAAA-MM-DD`.
 - **Quantidades de estoque:** decimais com até 3 casas, retornadas no JSON como texto (ex.: `"7.5"`).

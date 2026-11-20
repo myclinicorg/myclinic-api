@@ -1,5 +1,7 @@
 import { IsEnum, IsISO8601, IsOptional, Matches } from 'class-validator';
+import { IntersectionType } from '@nestjs/swagger';
 import { DATE_ONLY } from '../../common/date-time.js';
+import { PaginationDto } from '../../common/pagination.dto.js';
 import {
   TransactionCategory,
   TransactionStatus,
@@ -18,7 +20,10 @@ export class PeriodDto {
   to?: string;
 }
 
-export class FindTransactionsDto extends PeriodDto {
+export class FindTransactionsDto extends IntersectionType(
+  PeriodDto,
+  PaginationDto,
+) {
   @IsOptional()
   @IsEnum(TransactionType)
   type?: TransactionType;

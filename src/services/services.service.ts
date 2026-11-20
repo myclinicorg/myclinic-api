@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
+import { pageArgs, toPage } from '../common/pagination.dto.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateServiceDto } from './dto/create-service.dto.js';
@@ -26,14 +27,20 @@ export class ServicesService {
     });
   }
 
-  findAll({ active }: FindServicesDto) {
-    return this.prisma.service.findMany({
-      where: {
-        clinicId: this.clinicContext.requireClinicId(),
-        ...(active !== undefined && { active: active === 'true' }),
-      },
-      orderBy: { name: 'asc' },
-    });
+  async findAll({ active, ...pagination }: FindServicesDto) {
+    const where: Prisma.ServiceWhereInput = {
+      clinicId: this.clinicContext.requireClinicId(),
+      ...(active !== undefined && { active: active === 'true' }),
+    };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.service.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        ...pageArgs(pagination),
+      }),
+      this.prisma.service.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async findOne(id: string) {

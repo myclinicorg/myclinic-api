@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
+import { pageArgs, toPage } from '../common/pagination.dto.js';
 import {
   Prisma,
   TransactionCategory,
@@ -56,11 +57,29 @@ export class TransactionsService {
     });
   }
 
-  findAll({ type, status, category, ...period }: FindTransactionsDto) {
-    return this.prisma.transaction.findMany({
-      where: { ...this.periodWhere(period), type, status, category },
-      orderBy: [{ dueDate: 'desc' }, { createdAt: 'desc' }],
-    });
+  async findAll({
+    type,
+    status,
+    category,
+    from,
+    to,
+    ...pagination
+  }: FindTransactionsDto) {
+    const where: Prisma.TransactionWhereInput = {
+      ...this.periodWhere({ from, to }),
+      type,
+      status,
+      category,
+    };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.transaction.findMany({
+        where,
+        orderBy: [{ dueDate: 'desc' }, { createdAt: 'desc' }],
+        ...pageArgs(pagination),
+      }),
+      this.prisma.transaction.count({ where }),
+    ]);
+    return toPage(data, total, pagination);
   }
 
   async summary(period: PeriodDto) {

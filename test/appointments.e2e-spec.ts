@@ -123,7 +123,7 @@ describe('Appointments (e2e)', () => {
       })
       .set('Cookie', cookie)
       .expect(200);
-    expect(res.body.map((a: { startsAt: string }) => a.startsAt)).toEqual([
+    expect(res.body.data.map((a: { startsAt: string }) => a.startsAt)).toEqual([
       '2026-12-01T13:00:00.000Z',
       '2026-12-01T13:50:00.000Z',
     ]);
@@ -132,7 +132,7 @@ describe('Appointments (e2e)', () => {
       .get('/appointments')
       .set('Cookie', otherCookie)
       .expect(200);
-    expect(other.body).toEqual([]);
+    expect(other.body.data).toEqual([]);
   });
 
   it('reschedules, confirms and cancels', async () => {

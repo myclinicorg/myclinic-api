@@ -109,7 +109,7 @@ describe('Patients (e2e)', () => {
       .get('/patients')
       .set('Cookie', cookie)
       .expect(200);
-    expect(all.body.map((p: { fullName: string }) => p.fullName)).toEqual([
+    expect(all.body.data.map((p: { fullName: string }) => p.fullName)).toEqual([
       'João Lima',
       'Maria Souza',
     ]);
@@ -119,14 +119,37 @@ describe('Patients (e2e)', () => {
       .query({ search: 'maria' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(byName.body).toHaveLength(1);
+    expect(byName.body.data).toHaveLength(1);
 
     const byCpf = await request(app.getHttpServer())
       .get('/patients')
       .query({ search: '987.654' })
       .set('Cookie', cookie)
       .expect(200);
-    expect(byCpf.body[0].fullName).toBe('João Lima');
+    expect(byCpf.body.data[0].fullName).toBe('João Lima');
+  });
+
+  it('paginates the list', async () => {
+    const page = await request(app.getHttpServer())
+      .get('/patients')
+      .query({ page: 2, pageSize: 1 })
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(page.body).toMatchObject({
+      data: [{ fullName: 'Maria Souza' }],
+      meta: { page: 2, pageSize: 1, total: 2, totalPages: 2 },
+    });
+
+    await request(app.getHttpServer())
+      .get('/patients')
+      .query({ pageSize: 101 })
+      .set('Cookie', cookie)
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/patients')
+      .query({ page: 0 })
+      .set('Cookie', cookie)
+      .expect(400);
   });
 
   it('reads, updates and deletes a patient', async () => {
@@ -167,7 +190,7 @@ describe('Patients (e2e)', () => {
       .get('/patients')
       .set('Cookie', otherCookie)
       .expect(200);
-    const [own] = res.body;
+    const [own] = res.body.data;
 
     await request(app.getHttpServer())
       .get(`/patients/${own.id}`)

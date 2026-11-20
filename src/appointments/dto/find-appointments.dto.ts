@@ -5,10 +5,11 @@ import {
   IsUUID,
   Matches,
 } from 'class-validator';
+import { PaginationDto } from '../../common/pagination.dto.js';
 import { DATE_TIME_WITH_OFFSET } from '../../common/date-time.js';
 import { AppointmentStatus } from '../../generated/prisma/client.js';
 
-export class FindAppointmentsDto {
+export class FindAppointmentsDto extends PaginationDto {
   @IsOptional()
   @IsISO8601({ strict: true })
   @Matches(DATE_TIME_WITH_OFFSET, {
