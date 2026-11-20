@@ -34,9 +34,14 @@ docker compose up -d
 npx prisma migrate deploy
 npx prisma generate
 
-# 5. API em modo desenvolvimento
+# 5. Dados de demonstração (opcional)
+npx prisma db seed
+
+# 6. API em modo desenvolvimento
 npm run start:dev
 ```
+
+O seed cria uma **conta de demonstração** já com clínica, pacientes e serviços. O e-mail e a senha ficam em `DEMO_EMAIL` e `DEMO_PASSWORD` no `.env`. O seed pode ser executado várias vezes sem duplicar dados.
 
 A API sobe em `http://localhost:3000` e a documentação interativa (Swagger) em **`http://localhost:3000/docs`** (JSON em `/docs-json`).
 
@@ -50,6 +55,7 @@ A API sobe em `http://localhost:3000` e a documentação interativa (Swagger) em
 | `MAIL_FROM` | Remetente dos e-mails |
 | `SMTP_URL` | Opcional. Sem ela, os e-mails são apenas impressos no log da aplicação |
 | `PORT` | Opcional. Porta HTTP (padrão `3000`) |
+| `DEMO_EMAIL`, `DEMO_PASSWORD` | Credenciais da conta de demonstração criada por `npx prisma db seed` (apenas desenvolvimento) |
 
 ## Scripts
 
@@ -61,6 +67,7 @@ A API sobe em `http://localhost:3000` e a documentação interativa (Swagger) em
 | `npm run test:e2e` | Testes end-to-end (exigem o PostgreSQL do Docker) |
 | `npm run lint` / `npm run format` | Lint (oxlint) e formatação (Prettier) |
 | `npx prisma migrate dev --name <nome>` | Cria e aplica uma migration após alterar `prisma/schema.prisma` |
+| `npx prisma db seed` | Cria ou atualiza a conta de demonstração |
 | `npx prisma studio` | Interface para inspecionar o banco |
 
 ## Módulos e rotas
