@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { accountEmail } from './auth/account-email.js';
+import { validationExceptionFactory } from './common/validation/validation-messages.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { ClinicsModule } from './clinics/clinics.module.js';
@@ -81,7 +82,11 @@ import { TransactionsModule } from './transactions/transactions.module.js';
     AppService,
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true }),
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        exceptionFactory: validationExceptionFactory,
+      }),
     },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],

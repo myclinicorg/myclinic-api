@@ -57,10 +57,16 @@ describe('Authentication (e2e)', () => {
       .post('/auth/sign-up')
       .send(ana)
       .expect(409);
-    await request(app.getHttpServer())
+    const invalid = await request(app.getHttpServer())
       .post('/auth/sign-up')
       .send({ email: 'not-an-email', password: 'short' })
       .expect(400);
+    expect(invalid.body.message).toEqual(
+      expect.arrayContaining([
+        'email deve ser um e-mail válido',
+        'password deve ter no mínimo 12 caracteres',
+      ]),
+    );
   });
 
   it('signs in and out', async () => {
