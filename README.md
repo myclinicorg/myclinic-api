@@ -93,6 +93,7 @@ Os detalhes de cada corpo e parâmetro estão no Swagger em `/docs`.
 - **Listagens:** paginadas com `?page=` (padrão 1) e `?pageSize=` (padrão 20, máximo 100). A resposta é `{ data: [...], meta: { page, pageSize, total, totalPages } }`.
 - **Valores monetários:** inteiros em centavos (`priceCents`, `amountCents`, `unitCostCents`). R$ 150,00 = `15000`.
 - **Data e hora:** ISO 8601 com fuso horário (`2026-12-01T10:00:00-03:00`). **Datas sem hora:** `AAAA-MM-DD`.
+- **Resumo financeiro (`/transactions/summary`):** receitas e despesas realizadas contam pela data de pagamento; valores pendentes, pela data de vencimento. Os dias são considerados no fuso `America/Sao_Paulo`.
 - **Quantidades de estoque:** decimais com até 3 casas, retornadas no JSON como texto (ex.: `"7.5"`).
 - **Documentos e contato:** CPF, CNPJ, CEP e telefone apenas com dígitos; UF com duas letras maiúsculas.
 - **Erros de regra de negócio:** `409` com `errorCode`, como `SCHEDULE_CONFLICT`, `INVALID_STATUS` e `INSUFFICIENT_STOCK`.

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClinicContext } from '../clinics/clinic-context.js';
+import { startOfLocalDay, startOfNextLocalDay } from '../common/date-time.js';
 import { pageArgs, toPage } from '../common/pagination.dto.js';
 import {
   Prisma,
@@ -82,44 +83,56 @@ export class TransactionsService {
     return toPage(data, total, pagination);
   }
 
-  async summary(period: PeriodDto) {
-    const groups = await this.prisma.transaction.groupBy({
-      by: ['type', 'status', 'category'],
-      where: {
-        ...this.periodWhere(period),
-        status: { not: 'CANCELED' },
-      },
-      _sum: { amountCents: true },
-    });
+  async summary({ from, to }: PeriodDto) {
+    const clinicId = this.clinicContext.requireClinicId();
+    const [paid, pending] = await this.prisma.$transaction([
+      this.prisma.transaction.groupBy({
+        by: ['type', 'category'],
+        where: {
+          clinicId,
+          status: 'PAID',
+          paidAt: {
+            ...(from && { gte: startOfLocalDay(from) }),
+            ...(to && { lt: startOfNextLocalDay(to) }),
+          },
+        },
+        _sum: { amountCents: true },
+        orderBy: [{ type: 'asc' }, { category: 'asc' }],
+      }),
+      this.prisma.transaction.groupBy({
+        by: ['type'],
+        where: { ...this.periodWhere({ from, to }), status: 'PENDING' },
+        _sum: { amountCents: true },
+        orderBy: { type: 'asc' },
+      }),
+    ]);
 
-    const total = (type: TransactionType, status: TransactionStatus) =>
+    const sum = (
+      groups: {
+        type: TransactionType;
+        _sum?: { amountCents?: number | null };
+      }[],
+      type: TransactionType,
+    ) =>
       groups
-        .filter((g) => g.type === type && g.status === status)
-        .reduce((sum, g) => sum + (g._sum.amountCents ?? 0), 0);
+        .filter((g) => g.type === type)
+        .reduce((total, g) => total + (g._sum?.amountCents ?? 0), 0);
 
-    const incomeCents = total('INCOME', 'PAID');
-    const expenseCents = total('EXPENSE', 'PAID');
-    const byCategory = new Map<string, number>();
-    for (const g of groups.filter((g) => g.status === 'PAID')) {
-      const key = `${g.type}:${g.category}`;
-      byCategory.set(
-        key,
-        (byCategory.get(key) ?? 0) + (g._sum.amountCents ?? 0),
-      );
-    }
-
+    const incomeCents = sum(paid, 'INCOME');
+    const expenseCents = sum(paid, 'EXPENSE');
     return {
-      from: period.from ?? null,
-      to: period.to ?? null,
+      from: from ?? null,
+      to: to ?? null,
       incomeCents,
       expenseCents,
       balanceCents: incomeCents - expenseCents,
-      pendingIncomeCents: total('INCOME', 'PENDING'),
-      pendingExpenseCents: total('EXPENSE', 'PENDING'),
-      byCategory: [...byCategory].map(([key, totalCents]) => {
-        const [type, category] = key.split(':');
-        return { type, category, totalCents };
-      }),
+      pendingIncomeCents: sum(pending, 'INCOME'),
+      pendingExpenseCents: sum(pending, 'EXPENSE'),
+      byCategory: paid.map((g) => ({
+        type: g.type,
+        category: g.category,
+        totalCents: g._sum?.amountCents ?? 0,
+      })),
     };
   }
 

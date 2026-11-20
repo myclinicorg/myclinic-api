@@ -209,14 +209,36 @@ describe('Transactions (e2e)', () => {
       ]),
     );
 
-    const january = await http()
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+    }).format(new Date());
+    const paidToday = await http()
       .get('/transactions/summary')
-      .query({ from: '2030-01-01', to: '2030-01-03' })
+      .query({ from: today, to: today })
       .set('Cookie', cookie)
       .expect(200);
-    expect(january.body).toMatchObject({
-      incomeCents: 4500,
+    expect(paidToday.body).toMatchObject({
+      incomeCents: 19500,
+      expenseCents: 120000,
+    });
+
+    await create({
+      type: 'EXPENSE',
+      category: 'EQUIPMENT',
+      amountCents: 5000,
+      dueDate: '2030-02-10',
+    }).expect(201);
+    const february = await http()
+      .get('/transactions/summary')
+      .query({ from: '2030-02-01', to: '2030-02-28' })
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(february.body).toMatchObject({
+      incomeCents: 0,
       expenseCents: 0,
+      pendingIncomeCents: 0,
+      pendingExpenseCents: 5000,
+      byCategory: [],
     });
   });
 
