@@ -10,7 +10,7 @@ describe('Clinics (e2e)', () => {
   let cookie: string;
   const clinic = {
     name: 'Clínica Bem Estar',
-    cnpj: '12345678000190',
+    cnpj: '12345678000195',
     phone: '11987654321',
     zipCode: '01310100',
     city: 'São Paulo',
@@ -55,6 +55,11 @@ describe('Clinics (e2e)', () => {
       .set('Cookie', cookie)
       .send({ name: '', cnpj: '123', state: 'sp' })
       .expect(400);
+    await request(app.getHttpServer())
+      .post('/clinic')
+      .set('Cookie', cookie)
+      .send({ ...clinic, cnpj: '12345678000190' })
+      .expect(400);
   });
 
   it('creates the clinic of the current user', async () => {
@@ -76,7 +81,7 @@ describe('Clinics (e2e)', () => {
     await request(app.getHttpServer())
       .post('/clinic')
       .set('Cookie', cookie)
-      .send({ ...clinic, cnpj: '98765432000110' })
+      .send({ ...clinic, cnpj: '98765432000198' })
       .expect(409);
 
     const other = await signUp('bia@example.com');

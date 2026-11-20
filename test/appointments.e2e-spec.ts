@@ -45,13 +45,13 @@ describe('Appointments (e2e)', () => {
     prisma = app.get(PrismaService);
     await prisma.$executeRaw`TRUNCATE users, sessions, email_tokens CASCADE`;
     await app.listen(0, '127.0.0.1');
-    cookie = await signUp('ana@example.com', '12345678000190');
-    otherCookie = await signUp('bia@example.com', '98765432000110');
+    cookie = await signUp('ana@example.com', '12345678000195');
+    otherCookie = await signUp('bia@example.com', '98765432000198');
 
     const patient = await http()
       .post('/patients')
       .set('Cookie', cookie)
-      .send({ fullName: 'Maria Souza', cpf: '12345678901' })
+      .send({ fullName: 'Maria Souza', cpf: '12345678909' })
       .expect(201);
     patientId = patient.body.id;
     const service = await http()

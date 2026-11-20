@@ -43,8 +43,8 @@ describe('Supplies (e2e)', () => {
     await app.get(PrismaService)
       .$executeRaw`TRUNCATE users, sessions, email_tokens CASCADE`;
     await app.listen(0, '127.0.0.1');
-    cookie = await signUp('ana@example.com', '12345678000190');
-    otherCookie = await signUp('bia@example.com', '98765432000110');
+    cookie = await signUp('ana@example.com', '12345678000195');
+    otherCookie = await signUp('bia@example.com', '98765432000198');
   });
 
   afterAll(async () => {
@@ -159,7 +159,7 @@ describe('Supplies (e2e)', () => {
     const patient = await http()
       .post('/patients')
       .set('Cookie', cookie)
-      .send({ fullName: 'Maria', cpf: '12345678901' })
+      .send({ fullName: 'Maria', cpf: '12345678909' })
       .expect(201);
     const service = await http()
       .post('/services')

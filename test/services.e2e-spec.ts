@@ -40,8 +40,8 @@ describe('Services (e2e)', () => {
     prisma = app.get(PrismaService);
     await prisma.$executeRaw`TRUNCATE users, sessions, email_tokens CASCADE`;
     await app.listen(0, '127.0.0.1');
-    cookie = await signUp('ana@example.com', '12345678000190');
-    otherCookie = await signUp('bia@example.com', '98765432000110');
+    cookie = await signUp('ana@example.com', '12345678000195');
+    otherCookie = await signUp('bia@example.com', '98765432000198');
   });
 
   afterAll(async () => {
@@ -142,7 +142,7 @@ describe('Services (e2e)', () => {
       where: { id: serviceId },
     });
     const patient = await prisma.patient.create({
-      data: { clinicId, fullName: 'Maria', cpf: '12345678901' },
+      data: { clinicId, fullName: 'Maria', cpf: '12345678909' },
     });
     await prisma.appointment.create({
       data: {

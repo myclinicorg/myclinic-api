@@ -7,6 +7,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
+import { IsCpf } from '../../common/validators/brazilian-documents.js';
 
 export class CreatePatientDto {
   @IsString()
@@ -14,7 +15,7 @@ export class CreatePatientDto {
   @MaxLength(120)
   fullName: string;
 
-  @Matches(/^\d{11}$/, { message: 'cpf deve conter 11 dígitos' })
+  @IsCpf()
   cpf: string;
 
   @IsOptional()

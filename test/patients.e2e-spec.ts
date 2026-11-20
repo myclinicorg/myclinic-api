@@ -12,7 +12,7 @@ describe('Patients (e2e)', () => {
   let patientId: string;
   const patient = {
     fullName: 'Maria Souza',
-    cpf: '12345678901',
+    cpf: '12345678909',
     dateOfBirth: '1990-05-10',
     phone: '11912345678',
   };
@@ -42,8 +42,8 @@ describe('Patients (e2e)', () => {
     await app.get(PrismaService)
       .$executeRaw`TRUNCATE users, sessions, email_tokens CASCADE`;
     await app.listen(0, '127.0.0.1');
-    cookie = await signUp('ana@example.com', '12345678000190');
-    otherCookie = await signUp('bia@example.com', '98765432000110');
+    cookie = await signUp('ana@example.com', '12345678000195');
+    otherCookie = await signUp('bia@example.com', '98765432000198');
   });
 
   afterAll(async () => {
@@ -77,6 +77,11 @@ describe('Patients (e2e)', () => {
       .post('/patients')
       .set('Cookie', cookie)
       .send({ fullName: '', cpf: '123', dateOfBirth: '10/05/1990' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/patients')
+      .set('Cookie', cookie)
+      .send({ ...patient, cpf: '12345678901' })
       .expect(400);
     await request(app.getHttpServer())
       .post('/patients')

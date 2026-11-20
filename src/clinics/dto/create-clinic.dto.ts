@@ -7,6 +7,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
+import { IsCnpj } from '../../common/validators/brazilian-documents.js';
 
 export class CreateClinicDto {
   @IsString()
@@ -14,7 +15,7 @@ export class CreateClinicDto {
   @MaxLength(120)
   name: string;
 
-  @Matches(/^\d{14}$/, { message: 'cnpj deve conter 14 dígitos' })
+  @IsCnpj()
   cnpj: string;
 
   @IsOptional()
